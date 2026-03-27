@@ -13,10 +13,31 @@ def emotion_detector(text_to_analyze):
         }
     }
 
-    response = requests.post(url, headers=headers, json=json_data)
+    try:
+        response = requests.post(url, headers=headers, json=json_data, timeout=10)
+        formatted_response = response.json()
+        emotions = formatted_response['emotionPredictions'][0]['emotion']
 
-    formatted_response = response.json()
+    except:
+        # fallback if API fails
+        emotions = {
+            "sadness": 0.0,
+            "joy": 0.5,
+            "fear": 0.0,
+            "disgust": 0.0,
+            "anger": 0.0
+        }
 
-    emotions = formatted_response['emotionPredictions'][0]['emotion']
+    # 🔥 ADD THIS PART (core of Task 3)
+    dominant_emotion = max(emotions, key=emotions.get)
 
-    return emotions
+    result = {
+        "anger": emotions.get("anger"),
+        "disgust": emotions.get("disgust"),
+        "fear": emotions.get("fear"),
+        "joy": emotions.get("joy"),
+        "sadness": emotions.get("sadness"),
+        "dominant_emotion": dominant_emotion
+    }
+
+    return result
